@@ -37,7 +37,7 @@ func (g *GuestBook) WebDelete(params martini.Params) (int, string) {
 		// No params. Remove all entries from collection.
 		g.RemoveAllEntries()
 
-		return http.StatusOk, "collection deleted"
+		return http.StatusOK, "collection deleted"
 	}
 
 	// Convert id to an integer.
@@ -54,7 +54,7 @@ func (g *GuestBook) WebDelete(params martini.Params) (int, string) {
 		return http.StatusNotFound, "entry not found"
 	}
 
-	return http.StatusOk, "entry deleted"
+	return http.StatusOK, "entry deleted"
 }
 
 // WebGet implements webservice.WebGet.
@@ -68,7 +68,7 @@ func (g *GuestBook) WebGet(params martini.Params) (int, string) {
 		}
 
 		// Return encoded entries.
-		return http.StatusOk, string(encodedEntries)
+		return http.StatusOK, string(encodedEntries)
 	}
 
 	// Convert id to integer.
@@ -93,7 +93,7 @@ func (g *GuestBook) WebGet(params martini.Params) (int, string) {
 	}
 
 	// Return encoded entry.
-	return http.StatusOk, string(encodedEntry)
+	return http.StatusOK, string(encodedEntry)
 }
 
 // WebPost implements webservice.WebPost.
@@ -126,6 +126,6 @@ func (g *GuestBook) WebPost(params martini.Params,
 		guestBookEntry.Content)
 
 	// Everything is fine.
-	return http.StatusOk, "new entry created"
+	return http.StatusOK, "new entry created"
 }
 
