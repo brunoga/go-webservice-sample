@@ -12,6 +12,8 @@
 // License for the specific language governing permissions and limitations under
 // the License.
 
+// WebService related methods.
+
 package guestbook
 
 import (
@@ -23,77 +25,107 @@ import (
 	"github.com/codegangsta/martini"
 )
 
+// GetPath implements webservice.GetPath.
 func (g *GuestBook) GetPath() string {
+	// Associate this service with http://host:port/guestbook.
 	return "/guestbook"
 }
 
+// WebDelete implements webservice.WebDelete.
 func (g *GuestBook) WebDelete(params martini.Params) (int, string) {
 	if len(params) == 0 {
+		// No params. Remove all entries from collection.
 		g.RemoveAllEntries()
-		return 200, "collection deleted"
+
+		return http.StatusOk, "collection deleted"
 	}
 
+	// Convert id to an integer.
 	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-		return 400, "invalid entry id"
+		// Id was not a number.
+		return http.StatusBadRequest, "invalid entry id"
 	}
 
+	// Remove entry identified by id.
 	err = g.RemoveEntry(id)
 	if err != nil {
-		return 400, "entry not found"
+		// Could not find entry.
+		return http.StatusNotFound, "entry not found"
 	}
 
-	return 200, "entry deleted"
+	return http.StatusOk, "entry deleted"
 }
 
+// WebGet implements webservice.WebGet.
 func (g *GuestBook) WebGet(params martini.Params) (int, string) {
 	if len(params) == 0 {
+		// No params. Return entire collection encoded as JSON.
 		encodedEntries, err := json.Marshal(g.GetAllEntries())
 		if err != nil {
-			return 500, "internal error"
+			// Failed encoding collection.
+			return http.StatusInternalServerError, "internal error"
 		}
-		return 200, string(encodedEntries)
+
+		// Return encoded entries.
+		return http.StatusOk, string(encodedEntries)
 	}
 
+	// Convert id to integer.
 	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-		return 400, "invalid entry id"
+		// Id was not a number.
+		return http.StatusBadRequest, "invalid entry id"
 	}
 
+	// Get entry identified by id.
 	entry, err := g.GetEntry(id)
 	if err != nil {
-		return 404, "entry not found"
+		// Entry not found.
+		return http.StatusNotFound, "entry not found"
 	}
 
+	// Encode entry in JSON.
 	encodedEntry, err := json.Marshal(entry)
 	if err != nil {
-		return 500, "internal error"
+		// Failed encoding entry.
+		return http.StatusInternalServerError, "internal error"
 	}
 
-	return 200, string(encodedEntry)
+	// Return encoded entry.
+	return http.StatusOk, string(encodedEntry)
 }
 
+// WebPost implements webservice.WebPost.
 func (g *GuestBook) WebPost(params martini.Params,
 	req *http.Request) (int, string) {
+	// Make sure Body is closed when we are done.
 	defer req.Body.Close()
+
+	// Read request body.
 	requestBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		return 500, "internal error"
+		return http.StatusInternalServerError, "internal error"
 	}
 
 	if len(params) != 0 {
-		return 405, "method not supported"
+		// No keys in params. This is not supported.
+		return http.StatusMethodNotAllowed, "method not allowed"
 	}
 
+	// Unmarshal entry sent by the user.
 	var guestBookEntry GuestBookEntry
 	err = json.Unmarshal(requestBody, &guestBookEntry)
 	if err != nil {
-		return 400, "invalid JSON data"
+		// Could not unmarshal entry.
+		return http.StatusBadRequest, "invalid JSON data"
 	}
 
+	// Add entry provided by the user.
 	g.AddEntry(guestBookEntry.Email, guestBookEntry.Title,
 		guestBookEntry.Content)
 
-	return 200, "new entry created"
+	// Everything is fine.
+	return http.StatusOk, "new entry created"
 }
 
