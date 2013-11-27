@@ -15,9 +15,8 @@
 package main
 
 import (
-	"./guestbook"
-	"./webservice"
-
+	"github.com/brunoga/go-webservice-sample/guestbook"
+	"github.com/brunoga/go-webservice-sample/webservice"
 	"github.com/codegangsta/martini"
 )
 
