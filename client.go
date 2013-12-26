@@ -15,7 +15,7 @@
 // This file implements a generic REST client with JSON support to make it
 // easier to test web services. Example usage:
 //
-// go run server.go \
+// go run client.go \
 //	--request_url=http://127.0.0.1:3000/webservice \
 //	--request_method=post \
 //	--request_data='{"Id":0,"Email":"bga@bug-br.org.br"}'
